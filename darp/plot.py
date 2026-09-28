@@ -64,6 +64,34 @@ def plot_success(logs, path: Path, title: str = "", window: int = 20) -> None:
     plt.close(fig)
 
 
+def plot_success_vs_samples(logs, path: Path, title: str = "", window: int = 20) -> None:
+    """Success rate against environment samples, counting the steps spent answering queries."""
+    fig, ax = plt.subplots(figsize=(6.4, 3.6))
+    for method in ORDER:
+        runs = [r for r in logs.get(method, []) if r.get("samples")]
+        if not runs:
+            continue
+        xs = [np.asarray(r["samples"], float) for r in runs]
+        ys = [moving_average(r["success"], window) for r in runs]
+        grid = np.geomspace(max(1.0, min(x[0] for x in xs)), max(x[-1] for x in xs), 400)
+        # A finished run keeps its final success rate beyond its last sample.
+        curves = np.stack([np.interp(grid, x, y, left=0.0, right=y[-1]) for x, y in zip(xs, ys)])
+        mean, std = curves.mean(0), curves.std(0)
+        ax.plot(grid, mean, color=COLORS[method], lw=2, label=NAMES[method].replace(", uses oracle", ""),
+                ls="--" if method == "agi" else "-")
+        ax.fill_between(grid, np.clip(mean - std, 0, 1), np.clip(mean + std, 0, 1), color=COLORS[method], alpha=0.12, lw=0)
+    ax.set_xscale("log")
+    ax.set_xlim(left=100)
+    ax.set_xlabel("Environment samples (incl. steps spent answering queries)")
+    ax.set_ylabel(f"Success rate ({window}-episode average)")
+    ax.set_ylim(0, 1.03)
+    if title:
+        ax.set_title(title, fontsize=11, color=INK)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=4, fontsize=9.5, handlelength=1.8)
+    fig.savefig(path)
+    plt.close(fig)
+
+
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("results_dir")
@@ -73,7 +101,9 @@ def main(argv=None) -> None:
     if not logs:
         raise SystemExit(f"No *_seed*.json logs in {out}")
     (out / "figures").mkdir(exist_ok=True)
-    plot_success(logs, out / "figures" / "success_rate.png", out.name.replace("_", " ").title())
+    title = out.name.replace("_", " ").title()
+    plot_success(logs, out / "figures" / "success_vs_episodes.png", title)
+    plot_success_vs_samples(logs, out / "figures" / "success_vs_samples.png", title)
     print(f"Figures written to {out / 'figures'}/")
 
 

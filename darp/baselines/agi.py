@@ -46,7 +46,7 @@ class AGIEnv:
         self.actions = list(env.actions)
         self.states = list(env.states)
         self.state_0 = env.start
-        self.labels = set(env.alphabet)
+        self.labels = tuple(sorted(env.alphabet))  # fixed order: set order of strings varies between runs
         self.reset()
 
     def L(self, state) -> str:
@@ -150,45 +150,53 @@ class Teacher:
 
     def __init__(self, mdp: AGIEnv):
         self.mdp = mdp
-        self.samples = 0
+        self.samples = 0      # number of queries
+        self.env_steps = 0    # environment steps needed to execute the queried trajectories
 
     def membership(self, query):
         self.samples += 1
         state, trajectory = self.mdp.state_0, ()
         for label in query:
-            state = self.mdp_bfs(state, label)
+            state, steps = self._bfs(state, label)
+            self.env_steps += steps
             trajectory = trajectory + (state,)
         return self.mdp.trajectory_reward(trajectory)
 
     def equivalence(self, H: HypothesisDFA, max_depth: int):
         """Search M x H breadth-first for a trace on which H and M disagree."""
-        queue = deque([(self.mdp.state_0, H.state_0, ())])
+        queue = deque([(self.mdp.state_0, H.state_0, (), 0)])
         while queue:
-            mdp_state, dfa_state, trajectory = queue.popleft()
+            mdp_state, dfa_state, trajectory, cost = queue.popleft()
             if len(trajectory) > max_depth:
                 break
             self.samples += 1
+            self.env_steps += cost
             reward = self.mdp.trajectory_reward(trajectory)
             if int(dfa_state in H.accepting) != reward:
                 return self.trace(trajectory)
             for label in H.alphabet:
-                next_mdp_state = self.mdp_bfs(mdp_state, label)
-                queue.append((next_mdp_state, H.transition(dfa_state, label), trajectory + (next_mdp_state,)))
+                next_mdp_state, steps = self._bfs(mdp_state, label)
+                queue.append((next_mdp_state, H.transition(dfa_state, label),
+                              trajectory + (next_mdp_state,), cost + steps))
         return None
 
     def mdp_bfs(self, source, label):
         """Nearest state labelled ``label`` reachable through unlabelled states."""
-        queue = deque(self.possible_next_states(source, label))
-        visited = set(queue)
+        return self._bfs(source, label)[0]
+
+    def _bfs(self, source, label):
+        """Like :meth:`mdp_bfs`, also returning the number of steps to reach the state."""
+        queue = deque((s, 1) for s in self.possible_next_states(source, label))
+        visited = {s for s, _ in queue}
         while queue:
-            state = queue.popleft()
+            state, dist = queue.popleft()
             if self.mdp.L(state) == label:
-                return state
+                return state, dist
             for next_state in self.possible_next_states(state, label):
                 if next_state not in visited:
                     visited.add(next_state)
-                    queue.append(next_state)
-        return None
+                    queue.append((next_state, dist + 1))
+        return None, 0
 
     def possible_next_states(self, state, label):
         next_states = set()
@@ -379,6 +387,7 @@ def run_agi(env: LabeledGridWorld, task: Task, cfg: AGIConfig, seed: int,
         log.patterns_known.append(sum(hypothesis_accepts(H, w) for w in task.patterns.values()))
         log.wall_time.append(time.perf_counter() - start)
         log.queries.append(teacher.samples)
+        log.samples.append(sum(log.steps) + teacher.env_steps)
         if log_every and episode % log_every == 0:
             print(f"episode {episode:5d} | reward {reward} | hypothesis states {len(H.states)}")
     return learner.H, log

@@ -64,6 +64,7 @@ class EpisodeLog:
     patterns_known: List[int] = field(default_factory=list)
     wall_time: List[float] = field(default_factory=list)
     queries: List[int] = field(default_factory=list)   # cumulative oracle queries (AGI only)
+    samples: List[int] = field(default_factory=list)   # cumulative environment steps, incl. those spent answering queries
 
 
 def with_prefixes(traces: Iterable[Trace], positives: Set[Trace]) -> Set[Trace]:
@@ -196,4 +197,5 @@ class DARPAgent:
             self.log.dfa_states.append(self.dfa.num_states)
             self.log.patterns_known.append(len(self.patterns_known()))
             self.log.wall_time.append(time.perf_counter() - self._start)
+            self.log.samples.append(sum(self.log.steps))
         return outcome, w

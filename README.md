@@ -69,22 +69,23 @@ automaton, and also discovers the shorter 2+1 and 1+2 strategies that the initia
 
 ## Results
 
-Reproduced with this code, 10 seeds per method (mean ± std).
+Reproduced with this code, 10 seeds per method (mean ± std). **Environment samples** count every step
+taken in the environment, including the steps needed to execute the trajectories that AGI queries.
 
 | Dungeon Quest | Blind Craftsman |
 |:---:|:---:|
-| <img src="assets/results/dungeon_quest_success.png" width="420"> | <img src="assets/results/blind_craftsman_success.png" width="420"> |
+| <img src="assets/results/dungeon_quest_success_vs_samples.png" width="420"> | <img src="assets/results/blind_craftsman_success_vs_samples.png" width="420"> |
 
-| Environment | Method | Episodes to 90% success | Final success | New patterns discovered | Oracle queries |
+| Environment | Method | Env. samples to 90% success | Final success | New patterns discovered | Oracle queries |
 |---|---|:---:|:---:|:---:|:---:|
-| Dungeon Quest | **DARP** | **88 ± 14** | **100.0 ± 0.0%** | **1.2** | **0** |
-| | HiPO | 274 ± 155 (4/10 runs) | 41.2 ± 46.8% | 0 | 0 |
+| Dungeon Quest | **DARP** | **6,620 ± 1,201** | **100.0 ± 0.0%** | **1.2** | **0** |
+| | HiPO | 5,486 ± 454 (only 4/10 runs) | 41.2 ± 46.8% | 0 | 0 |
 | | Static RPNI | not reached | 2.0 ± 1.8% | 0 | 0 |
-| | AGI (L\*) | 21 ± 1 | 100.0 ± 0.0% | 3.0 | 2,770 |
-| Blind Craftsman | **DARP** | **389 ± 152** (9/10 runs) | **90.0 ± 30.0%** | **0.9** | **0** |
+| | AGI (L\*) | 77,485 ± 46 | 100.0 ± 0.0% | 3.0 | 3,286 |
+| Blind Craftsman | **DARP** | **23,694 ± 5,040** (9/10 runs) | **90.0 ± 30.0%** | **0.9** | **0** |
 | | HiPO | not reached | 0.0 ± 0.0% | 0 | 0 |
 | | Static RPNI | not reached | 0.0 ± 0.0% | 0 | 0 |
-| | AGI (L\*) | 209 ± 80 | 100.0 ± 0.0% | 2.0 | 841 |
+| | AGI (L\*) | 30,539 ± 6,205 | 100.0 ± 0.0% | 2.0 | 841 |
 
 - **DARP learns the task from scratch.** In Dungeon Quest it starts with no positive example and still
   reaches 100% success in every run. The passive baselines never recover from their initial automaton.
@@ -93,9 +94,12 @@ Reproduced with this code, 10 seeds per method (mean ± std).
 - **It finds better strategies.** Successful DARP episodes take 12.9 steps in Dungeon Quest (optimal: 12),
   versus 21.5 for HiPO, which sticks to its one known pattern. In Blind Craftsman they take 22.6 steps,
   below the 26 of the known 1+1+1 pattern.
-- **Active inference pays in queries.** AGI (L\*) assumes access to the environment model and relies on
-  membership and equivalence queries: 841–2,770 of them per run. DARP learns from its own episodes
-  only, with no model and no queries.
+- **Fewer samples than active inference.** AGI (L\*) relies on the environment model and on membership
+  and equivalence queries: 841–3,286 per run, costing 16k–77k environment steps to answer. DARP learns from
+  its own episodes only and reaches 90% success with **11.7× fewer samples** in Dungeon Quest and
+  **1.3× fewer** in Blind Craftsman.
+
+Learning curves over episodes (`success_vs_episodes.png`) are also produced by `python -m darp.plot`.
 
 ### Ablation
 
@@ -140,7 +144,8 @@ pytest
 ```
 
 Each run writes a per-episode log for every method and seed (`<method>_seed<k>.json`: success, steps,
-refinements, automaton size, discovered patterns, oracle queries, wall-clock time) and a `summary.json`.
+refinements, automaton size, discovered patterns, oracle queries, environment samples, wall-clock time) and a
+`summary.json`.
 
 ### Use it from Python
 
