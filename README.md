@@ -93,9 +93,9 @@ Reproduced with this code, 10 seeds per method (mean ± std).
 - **It finds better strategies.** Successful DARP episodes take 12.9 steps in Dungeon Quest (optimal: 12),
   versus 21.5 for HiPO, which sticks to its one known pattern. In Blind Craftsman they take 22.6 steps,
   below the 26 of the known 1+1+1 pattern.
-- **AGI converges in fewer episodes, but only because it has an oracle.** L\* assumes access to the
-  environment model and answers membership and equivalence queries: 841–2,770 of them per run.
-  DARP needs no model and no queries.
+- **Active inference pays in queries.** AGI (L\*) assumes access to the environment model and relies on
+  membership and equivalence queries: 841–2,770 of them per run. DARP learns from its own episodes
+  only, with no model and no queries.
 
 ### Ablation
 
@@ -109,8 +109,10 @@ Each component contributes (DARP with one component removed, 10 seeds):
 | No coverage-gap trigger | 102 | 60% |
 | No refinement | not reached | 0% |
 
-> The numbers above come from this re-implementation, in which every method uses the same
-> environments, rewards and seeds. They differ from the tables in the paper; the conclusions are the same.
+> These results were produced with this open-source version of the implementation, which includes some
+> modifications (see [Implementation notes](#implementation-notes)); every method uses the same
+> environments, rewards and seeds. Exact numbers are therefore not identical to the paper's tables, but
+> they confirm the same findings.
 
 ## Installation
 
