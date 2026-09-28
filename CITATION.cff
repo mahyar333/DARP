@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "DARP: Dynamic Automaton Refinement and Planning"
+authors:
+  - family-names: Alinejad
+    given-names: Mahyar
+preferred-citation:
+  type: conference-paper
+  title: "Dynamic Automaton Refinement and Planning for Non-Markovian RL"
+  authors:
+    - family-names: Alinejad
+      given-names: Mahyar
+    - family-names: Wang
+      given-names: Yue
+    - family-names: Atia
+      given-names: George
+  collection-title: "IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)"
+  year: 2026
+  doi: "10.1109/ICASSP55912.2026.11461556"

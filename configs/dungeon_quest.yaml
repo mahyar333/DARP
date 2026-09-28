@@ -1,0 +1,40 @@
+# NOTE: learning hyperparameters below are generic placeholders that run
+# end-to-end but are NOT the tuned values behind the reported results.
+# Tuned configurations are available on request.
+env: dungeon_quest
+episodes: 400
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+initial_knowledge:
+  negatives: ["dragon", "chest dragon", "shield dragon"]
+  known_pattern: key-chest-shield     # the one pattern HiPO starts with
+
+q_learning:
+  alpha: 0.5   # placeholder
+  gamma: 0.9   # placeholder
+  epsilon_start: 1.0   # placeholder
+  epsilon_min: 0.1   # placeholder
+  epsilon_decay: 0.992   # placeholder
+  goal_reward: 1.0   # placeholder
+  progress_reward: 0.2   # placeholder
+  step_penalty: 0.02   # placeholder
+
+darp:
+  start_with_known_pattern: false     # DARP starts from zero positive examples
+  refine: true
+  coverage_gap: true
+  theta_min: 0.2   # placeholder
+  lam: 1.0   # placeholder
+  beta: 2.0   # placeholder
+  exploration_bonus: true
+  alpha_bonus: 0.5   # placeholder
+  q_transfer: true
+  eps_init: 0.1   # placeholder
+
+agi:
+  episode_length: 100
+  alpha: 0.3   # placeholder
+  gamma: 0.95   # placeholder
+  epsilon_decay: 0.998   # placeholder
+  vi_gamma: 0.95   # placeholder
+  omega: 5

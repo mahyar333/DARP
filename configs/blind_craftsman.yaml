@@ -1,0 +1,40 @@
+# NOTE: learning hyperparameters below are generic placeholders that run
+# end-to-end but are NOT the tuned values behind the reported results.
+# Tuned configurations are available on request.
+env: blind_craftsman
+episodes: 800
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+initial_knowledge:
+  negatives: ["home", "wood home", "wood factory home", "wood wood factory home", "factory home", "wood factory factory home"]
+  known_pattern: "1+1+1"               # the one (longest) pattern both agents start with
+
+q_learning:
+  alpha: 0.5   # placeholder
+  gamma: 0.9   # placeholder
+  epsilon_start: 1.0   # placeholder
+  epsilon_min: 0.1   # placeholder
+  epsilon_decay: 0.992   # placeholder
+  goal_reward: 1.0   # placeholder
+  progress_reward: 0.2   # placeholder
+  step_penalty: 0.02   # placeholder
+
+darp:
+  start_with_known_pattern: true      # same initial knowledge as HiPO
+  refine: true
+  coverage_gap: true
+  theta_min: 0.2   # placeholder
+  lam: 1.0   # placeholder
+  beta: 2.0   # placeholder
+  exploration_bonus: true
+  alpha_bonus: 0.5   # placeholder
+  q_transfer: true
+  eps_init: 0.1   # placeholder
+
+agi:
+  episode_length: 100
+  alpha: 0.3   # placeholder
+  gamma: 0.95   # placeholder
+  epsilon_decay: 0.998   # placeholder
+  vi_gamma: 0.95   # placeholder
+  omega: 5

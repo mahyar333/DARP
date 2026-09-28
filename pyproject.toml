@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "darp"
+version = "1.0.0"
+description = "DARP: online automaton refinement and planning for non-Markovian RL (ICASSP 2026)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Mahyar Alinejad" }]
+keywords = ["reinforcement learning", "automata learning", "RPNI", "online learning", "non-Markovian rewards"]
+dependencies = ["numpy>=1.22", "matplotlib>=3.5", "pyyaml>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+Paper = "https://doi.org/10.1109/ICASSP55912.2026.11461556"
+
+[tool.setuptools.packages.find]
+include = ["darp*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
