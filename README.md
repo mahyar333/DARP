@@ -76,16 +76,18 @@ taken in the environment, including the steps needed to execute the trajectories
 |:---:|:---:|
 | <img src="assets/results/dungeon_quest_success_vs_samples.png" width="420"> | <img src="assets/results/blind_craftsman_success_vs_samples.png" width="420"> |
 
-| Environment | Method | Env. samples to 90% success | Final success | New patterns discovered | Oracle queries |
-|---|---|:---:|:---:|:---:|:---:|
-| Dungeon Quest | **DARP** | **6,620 ± 1,201** | **100.0 ± 0.0%** | **1.2** | **0** |
-| | HiPO | 5,486 ± 454 (only 4/10 runs) | 41.2 ± 46.8% | 0 | 0 |
-| | Static RPNI | not reached | 2.0 ± 1.8% | 0 | 0 |
-| | AGI (L\*) | 77,485 ± 46 | 100.0 ± 0.0% | 3.0 | 3,286 |
-| Blind Craftsman | **DARP** | **23,694 ± 5,040** (9/10 runs) | **90.0 ± 30.0%** | **0.9** | **0** |
-| | HiPO | not reached | 0.0 ± 0.0% | 0 | 0 |
-| | Static RPNI | not reached | 0.0 ± 0.0% | 0 | 0 |
-| | AGI (L\*) | 30,539 ± 6,205 | 100.0 ± 0.0% | 2.0 | 841 |
+| Environment | Method | Env. samples to 90% success | Runs reaching 90% | Final success | New patterns discovered | Oracle queries |
+|---|---|:---:|:---:|:---:|:---:|:---:|
+| Dungeon Quest | **DARP** | **6,620 ± 1,201** | **10/10** | **100.0 ± 0.0%** | **1.2** | **0** |
+| | HiPO | ≥ 10,021 ± 3,718 | 4/10 | 41.2 ± 46.8% | 0 | 0 |
+| | Static RPNI | not reached | 0/10 | 2.0 ± 1.8% | 0 | 0 |
+| | AGI (L\*) | 77,485 ± 46 | 10/10 | 100.0 ± 0.0% | 3.0 | 3,286 |
+| Blind Craftsman | **DARP** | **≥ 24,786 ± 5,796** | **9/10** | **90.0 ± 30.0%** | **0.9** | **0** |
+| | HiPO | not reached | 0/10 | 0.0 ± 0.0% | 0 | 0 |
+| | Static RPNI | not reached | 0/10 | 0.0 ± 0.0% | 0 | 0 |
+| | AGI (L\*) | 30,539 ± 6,205 | 10/10 | 100.0 ± 0.0% | 2.0 | 841 |
+
+Runs that never reach 90% success are counted at their full sample budget, so means marked ≥ are lower bounds.
 
 - **DARP learns the task from scratch.** In Dungeon Quest it starts with no positive example and still
   reaches 100% success in every run. The passive baselines never recover from their initial automaton.
@@ -97,7 +99,7 @@ taken in the environment, including the steps needed to execute the trajectories
 - **Fewer samples than active inference.** AGI (L\*) relies on the environment model and on membership
   and equivalence queries: 841–3,286 per run, costing 16k–77k environment steps to answer. DARP learns from
   its own episodes only and reaches 90% success with **11.7× fewer samples** in Dungeon Quest and
-  **1.3× fewer** in Blind Craftsman.
+  **1.2× fewer** in Blind Craftsman.
 
 Learning curves over episodes (`success_vs_episodes.png`) are also produced by `python -m darp.plot`.
 

@@ -65,8 +65,10 @@ def summarize(log: EpisodeLog, window: int = 20, threshold: float = 0.9, tail: i
     first = int(hit[0] + window - 1) if len(hit) else None
     ok_steps = [st for st, ok in zip(log.steps[-tail:], log.success[-tail:]) if ok]
     return {
-        "episodes_to_90": first + 1 if first is not None else None,
-        "samples_to_90": int(log.samples[first]) if first is not None else None,
+        # Runs that never reach 90% count at their full budget (a lower bound).
+        "reached_90": first is not None,
+        "episodes_to_90": first + 1 if first is not None else len(s),
+        "samples_to_90": int(log.samples[first] if first is not None else log.samples[-1]),
         "final_success": float(s[-tail:].mean()),
         "new_patterns": int(log.patterns_known[-1]),
         "refinements": int(sum(log.refined)),
@@ -109,13 +111,15 @@ def aggregate(runs, key, default=None):
 
 
 def print_row(method, runs, episodes):
-    conv = aggregate(runs, "episodes_to_90", default=episodes)
+    conv = aggregate(runs, "episodes_to_90")
+    reached = sum(r["reached_90"] for r in runs)
     fin = aggregate(runs, "final_success")
     pat = aggregate(runs, "new_patterns")
     q = aggregate(runs, "queries")
     smp = aggregate(runs, "samples_to_90")
     print(f"{NAMES[method]:12s} episodes to 90%: {conv[0]:6.1f} ± {conv[1]:5.1f} | "
-          f"env. samples to 90%: {smp[0]:8.0f} ± {smp[1]:6.0f} | "
+          f"env. samples to 90%: {'>=' if reached < len(runs) else '  '}{smp[0]:8.0f} ± {smp[1]:6.0f} "
+          f"({reached}/{len(runs)} runs) | "
           f"final success: {100 * fin[0]:5.1f} ± {100 * fin[1]:4.1f}% | "
           f"new patterns: {pat[0]:.1f} | oracle queries: {q[0]:.0f}", flush=True)
 
